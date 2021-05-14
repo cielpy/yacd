@@ -149,28 +149,11 @@ async function closeGroupConns(
   groupName: string,
   exceptionItemName: string
 ) {
-  const res = await connAPI.fetchConns(apiConfig);
+  const res = await connAPI.closeAllConnections(apiConfig);
   if (!res.ok) {
-    console.log('unable to fetch all connections', res.statusText);
+    console.log('close all connections failed', res.statusText);
     /* throw new Error(); */
   }
-  const json = await res.json();
-  const connections = json.connections;
-  const idsToClose = [];
-  for (const conn of connections) {
-    if (
-      // include the groupName
-      conn.chains.indexOf(groupName) > -1 &&
-      // but not include the itemName
-      conn.chains.indexOf(exceptionItemName) < 0
-    ) {
-      idsToClose.push(conn.id);
-    }
-  }
-
-  await Promise.all(
-    idsToClose.map((id) => connAPI.closeConnById(apiConfig, id).catch(noop))
-  );
 }
 
 function resolveChain(
